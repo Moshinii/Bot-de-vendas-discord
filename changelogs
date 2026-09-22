@@ -1,5 +1,53 @@
 Changelog - Moshiini_ automações
 
+v5.2.0 - A era dos painéis (22/09/2026)
+
+A maior mudança do bot até agora: quase todos os comandos de gestão
+viraram BOTÕES em dois painéis de administração. O que era 95 comandos
+virou 27 — nada sumiu, tudo mudou de lugar:
+
+  NOVO: PAINEL EXCLUSIVO DO DONO DO BOT (/painel_dono)
+  - Só você abre: 🔑 Licenças & Equipe (cobrança PIX, gerentes,
+    bloquear/desbloquear lojas, licenças, avisar geral), 🛡️ Modmail
+    (bloqueios de usuários e categoria dos tickets) e 🌐 Ações Globais
+    (limpar lojas inativas, remover cargo em massa, DM para todos,
+    status global) + botão 🔄 Sincronizar Comandos.
+  - Essas funções SAÍRAM do painel compartilhado: gerente/admin de
+    loja de cliente nem vê mais que elas existem.
+
+  MUDOU: /painel_admin = CENTRAL DE ADMINISTRAÇÃO (10 seções)
+  - 🛍️ Produtos · 🖼️ Painéis · ⚙️ Configuração da Loja · ✅ Verificação ·
+    🧑‍🤝‍🧑 Cargos & Auxiliares · 💾 Backup de Imagens · 🎟️ Cupons ·
+    🎁 Sorteios & Convites · 🛡️ Segurança & Honeypot · 🧰 Manutenção &
+    Relatórios.
+  - Tudo por botões, menus e modais: criar/editar produto, montar e
+    postar painel, PIX, canais, campo de entrega, verificação,
+    cupons admin, sorteios, configuração de convites, honeypot,
+    backup/restauração da loja, CSV e diagnóstico...
+  - O 💾 Backup de Imagens agora é da EQUIPE DA LOJA (dono do
+    servidor, admins e gerentes) — cada loja escolhe onde guardar as
+    imagens das próprias transcrições/provas (antes era restrito ao
+    dono do bot).
+  - /painel_admin fixo posta a Central num canal: sobrevive a
+    restarts e NUNCA MAIS para de funcionar (antes os botões morriam
+    após 5 minutos).
+  - Regra de ouro: tudo responde NA MESMA mensagem do painel (sem
+    abrir chat novo) e toda confirmação/sub-tela tem o botão
+    ⬅️ Voltar.
+
+  REMOVIDOS: COMANDOS DE GESTÃO (migraram para os painéis)
+  - /produto ..., /painel ..., /gerenciar_loja ..., /configurar ...,
+    /recompensa ..., /verificacao ..., /honeypot ..., /backup ...,
+    /botadmin ..., /revalidar ..., /status, /limpar_lojas_inativas,
+    /setup e /testar_bot saem da lista de comandos — a mesma função
+    continua lá, no botão da seção correspondente.
+  - Cliente não sente diferença nenhuma: comprar, cupom, convite,
+    sorteio e troca seguem pelos mesmos comandos de sempre.
+
+  NOVO TAMBÉM: /minha_loja
+  - O antigo /loja minha_loja virou comando próprio (mais fácil de
+    digitar): sacola, histórico, gasto total e cupons em botões.
+
 v5.1.5 - Correções de erros
 
 No comando ajuda havia uma corrida nos botões que faziam o bot gritar erros no console...
