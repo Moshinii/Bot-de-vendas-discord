@@ -1,5 +1,9 @@
 Changelog - Moshiini_ automações
 
+v5.2.1 - Correção de erro (23/09/2026)
+
+Corrigido um erro que o postar painel não funcionava.
+
 v5.2.0 - A era dos painéis (22/09/2026)
 
 A maior mudança do bot até agora: quase todos os comandos de gestão
