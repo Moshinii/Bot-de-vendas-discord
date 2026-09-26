@@ -1,8 +1,66 @@
 Changelog - Moshiini_ automações
 
-v5.2.1 - Correção de erro (23/09/2026)
+v5.3.0 - Boas-vindas, painéis estáveis e visual limpo (25/09/2026)
 
-Corrigido um erro que o postar painel não funcionava.
+Uma rodada de polimento completo: o bot agora recebe quem o convida
+com um guia no privado, os menus do painel param de quebrar, enviar
+mensagem embed não trava mais e a interface ficou mais limpa.
+
+  NOVO: MENSAGEM DE BOAS-VINDAS
+  - Quando o bot é adicionado a um servidor, ele envia por DM um
+    guia "Como usar o bot" para quem fez o convite (detectado pelo
+    registro de auditoria do Discord).
+  - Não deu para identificar quem adicionou (ou falta permissão de
+    auditoria)? O guia vai para o dono do servidor. A DM está
+    fechada? O bot posta o guia num canal do próprio servidor.
+  - O guia mostra o caminho principal: /loja vincular (1º passo),
+    /painel_admin, /loja minha_loja, /cupom resgatar,
+    /sorteio minhasmensagens e /ajuda.
+
+  NOVO TAMBÉM (caso você ainda não tenha visto):
+  - Mensalidade: produto do tipo assinatura que concede um cargo
+    por X dias quando o pagamento é confirmado e remove o cargo na
+    expiração, com verificação a cada 5 minutos; renovar soma dias.
+  - Seção Mensagens na Central: escreva um embed (título,
+    descrição, imagem grande e pequena) com cor e rodapé
+    opcionais, veja o preview e envie no canal que escolher.
+
+  CORRIGIDO: ENVIAR MENSAGEM EMBED (erro 10062)
+  - O botão "Enviar mensagem" não falha mais com erro de interação
+    desconhecida: responde na hora com "Enviando...", mantém os
+    controles travados durante o envio e mostra o resultado real no
+    fim (com link da mensagem publicada).
+  - Novo botão "Ver preview" para conferir a mensagem antes de
+    postar.
+
+  CORRIGIDO: MENUS QUEBRADOS (erro 50035 Invalid emoji)
+  - Os menus suspensos das seções Canais e Cargos/Auxiliares
+    deixaram de quebrar ao abrir.
+  - Todos os seletores do painel agora também mostram a opção que
+    já estava selecionada depois de atualizar a tela.
+
+  MUDOU: PAINEL DE VENDA E TEXTOS
+  - O painel de venda respeita o nome customizado da opção:
+    renomear a opção muda o que o cliente vê no menu e no embed
+    (antes o nome do produto sobrescrevia).
+  - Quebra de linha de verdade: Termos de compra e descrição da
+    mensagem embed aceitam Enter e também o \n digitado; textos e
+    placeholders orientam o Enter.
+
+  MUDOU: ASSISTENTE E DIAGNÓSTICO
+  - Os passos do assistente de configuração e as mensagens de erro
+    apontam para as rotas reais: /painel_admin → Configuração da
+    Loja, Produtos & Estoque e Painéis de Venda.
+  - Menções a comandos antigos extintos saíram de todos os textos
+    (inclusive do log crítico do health-check do PIX).
+  - O botão de diagnóstico das seções Manutenção/Relatórios abre a
+    Central de Diagnóstico alinhada com o /painel_admin atual.
+
+  VISUAL MAIS LIMPO: ~2.300 EMOJIS REMOVIDOS
+  - Ajuda, painéis, loja, sorteios, modmail e mensagens trocaram
+    pictogramas coloridos por símbolos monocromáticos
+    (• ▪ ▸ ✓ ✗ ⚠ →) — /ajuda e painéis ficaram mais sóbrios e
+    legíveis.
 
 v5.2.0 - A era dos painéis (22/09/2026)
 
@@ -11,24 +69,24 @@ viraram BOTÕES em dois painéis de administração. O que era 95 comandos
 virou 27 — nada sumiu, tudo mudou de lugar:
 
   NOVO: PAINEL EXCLUSIVO DO DONO DO BOT (/painel_dono)
-  - Só você abre: 🔑 Licenças & Equipe (cobrança PIX, gerentes,
-    bloquear/desbloquear lojas, licenças, avisar geral), 🛡️ Modmail
-    (bloqueios de usuários e categoria dos tickets) e 🌐 Ações Globais
+  - Só você abre: Licenças & Equipe (cobrança PIX, gerentes,
+    bloquear/desbloquear lojas, licenças, avisar geral), Modmail
+    (bloqueios de usuários e categoria dos tickets) e Ações Globais
     (limpar lojas inativas, remover cargo em massa, DM para todos,
-    status global) + botão 🔄 Sincronizar Comandos.
+    status global) + botão Sincronizar Comandos.
   - Essas funções SAÍRAM do painel compartilhado: gerente/admin de
     loja de cliente nem vê mais que elas existem.
 
   MUDOU: /painel_admin = CENTRAL DE ADMINISTRAÇÃO (10 seções)
-  - 🛍️ Produtos · 🖼️ Painéis · ⚙️ Configuração da Loja · ✅ Verificação ·
-    🧑‍🤝‍🧑 Cargos & Auxiliares · 💾 Backup de Imagens · 🎟️ Cupons ·
-    🎁 Sorteios & Convites · 🛡️ Segurança & Honeypot · 🧰 Manutenção &
+  - Produtos · Painéis · Configuração da Loja · Verificação ·
+    Cargos & Auxiliares · Backup de Imagens · Cupons ·
+    Sorteios & Convites · Segurança & Honeypot · Manutenção &
     Relatórios.
   - Tudo por botões, menus e modais: criar/editar produto, montar e
     postar painel, PIX, canais, campo de entrega, verificação,
     cupons admin, sorteios, configuração de convites, honeypot,
     backup/restauração da loja, CSV e diagnóstico...
-  - O 💾 Backup de Imagens agora é da EQUIPE DA LOJA (dono do
+  - O Backup de Imagens agora é da EQUIPE DA LOJA (dono do
     servidor, admins e gerentes) — cada loja escolhe onde guardar as
     imagens das próprias transcrições/provas (antes era restrito ao
     dono do bot).
@@ -37,20 +95,19 @@ virou 27 — nada sumiu, tudo mudou de lugar:
     após 5 minutos).
   - Regra de ouro: tudo responde NA MESMA mensagem do painel (sem
     abrir chat novo) e toda confirmação/sub-tela tem o botão
-    ⬅️ Voltar.
+    Voltar.
 
   REMOVIDOS: COMANDOS DE GESTÃO (migraram para os painéis)
-  - /produto ..., /painel ..., /gerenciar_loja ..., /configurar ...,
-    /recompensa ..., /verificacao ..., /honeypot ..., /backup ...,
-    /botadmin ..., /revalidar ..., /status, /limpar_lojas_inativas,
-    /setup e /testar_bot saem da lista de comandos — a mesma função
-    continua lá, no botão da seção correspondente.
+  - Os antigos comandos de gestão saem da lista de comandos — a
+    mesma função continua lá, no botão da seção correspondente.
   - Cliente não sente diferença nenhuma: comprar, cupom, convite,
     sorteio e troca seguem pelos mesmos comandos de sempre.
 
   NOVO TAMBÉM: /minha_loja
   - O antigo /loja minha_loja virou comando próprio (mais fácil de
     digitar): sacola, histórico, gasto total e cupons em botões.
+
+  Para a nova lista de comandos aparecer no Discord, reinicie o bot
 
 v5.1.5 - Correções de erros
 
