@@ -895,12 +895,12 @@ Segurança:
 Permissões:
 
   - Permissões reestruturadas para dar prioridade total a administradores em
-    qualquer ação
+    qualquer ação.
 
 Bugs Corrigidos:
 
   - Adicionados identificadores fixos nos botões para continuarem funcionando
-    após o bot reiniciar.
+    após o bot reiniciar
   - Corrigidos erros de nomenclatura de variáveis internas.
   - Ajustado o sistema de geração de histórico de conversa para salvar as
     mensagens via banco de dados caso o canal seja deletado rapidamente.
