@@ -1,5 +1,190 @@
 Changelog - Moshiini_ automações
 
+v5.6.0 - Criar loja com IA, downgrade inteligente do Premium e verificação restart-safe (09/10/2026)
+
+  NOVO: "Criar loja com IA" (NVIDIA NIM)
+  - Central → Produtos → botão "✨ Criar com IA": o dono descreve a loja
+    em texto livre e a IA monta um rascunho completo (painel com
+    título/descrição/cor + produtos com nome, preço, descrição de venda,
+    estoque e emoji).
+  - Revisão antes de gravar: preview com botões Criar tudo, Editar
+    painel, Remover produtos, Gerar de novo e Descartar.
+  - Painel nasce NÃO postado (publica quando quiser em Painéis →
+    Postar/Sincronizar); produtos já entram vinculados às opções dele.
+  - Quota diária por servidor (zera meia-noite UTC), persistida no
+    banco — restart não zera: plano GRATUITO = 3 gerações/dia,
+    PREMIUM = 10 gerações/dia. Só geração consome quota (editar,
+    remover e criar não). Falha da IA não desconta.
+  - Respeita os limites do plano na geração e na criação — loja lotada
+    nem gasta quota. Ajustável por env: AI_SHOP_FREE_DAILY,
+    AI_SHOP_PREMIUM_DAILY e AI_SHOP_MODEL.
+  - DB v35: tabela ai_usage_daily. Testes: test_ai_shop_generator.py
+    (14) + test_ai_quota.py (9).
+
+  NOVO: downgrade do Premium com desativação de excedentes
+  - Licença expirou → ficam ativos os 5 primeiros produtos e 2 primeiros
+    painéis cadastrados; o excedente é DESATIVADO (some da loja, nada é
+    apagado) com marcação disabled_by_plan.
+  - Renovou → tudo que o plano desligou volta sozinho (loop de 1h) com
+    DM de aviso; o que o dono desligou manualmente continua desligado.
+  - Painel desativado mostra aviso "temporariamente desativado" no lugar
+    do select de compra; compra em painel desativado é bloqueada com
+    mensagem amigável; religar item desligado pelo plano no plano grátis
+    é bloqueado (anti-burla).
+  - DB v34: colunas panels.is_active, panels/products.disabled_by_plan.
+    Teste: test_plan_downgrade.py (14).
+
+  CORRIGIDO: kick em massa de membros após restart (verificação)
+  - A lista de pendentes de verificação era só em memória: ao reiniciar,
+    a varredura usava a data de ENTRADA no servidor como início do prazo
+    e membros antigos estouravam as 25h na hora (kicks em massa 1-2 min
+    após o boot).
+  - Agora o rastreamento persiste no banco (pending_verifications) e o
+    prazo conta de quando a verificação passou a ser exigida para o
+    membro — restart retoma de onde parou, sem kick indevido e sem os 3
+    lembretes de uma vez (máx. 1 DM de lembrete por ciclo).
+  - DB v33. Lembretes/expulsão seguem iguais (10 min / 1 h / 24 h / 25 h).
+
+  MUDOU: erros transitórios do Discord deixam de parecer bug grave
+  - 10062 (interação expirada — latência/reconexão) agora é aviso de 1
+    linha nos três caminhos (comandos slash, botões do dashboard,
+    handler global), sem traceback e sem DM falsa de erro ao dono.
+  - 10003 (canal apagado no meio do fluxo de entrega, ex.: ticket
+    deletado durante a espera da avaliação) é tolerado: a entrega já
+    estava registrada (DELIVERED) e só o retoque visual é pulado.
+
+v5.5.0 - Restart automático, logs em disco e backup de desastre diário (29/09/2026)
+
+  NOVO: supervisor.py — o bot religa sozinho após crash
+  - Novo ponto de entrada: python supervisor.py (o start.cmd já usa).
+    Crash → reinício com backoff progressivo (15s → 30s → 60s, teto
+    5 min); após 5 crashes rápidos seguidos (típico de configuração
+    quebrada, ex.: ENCRYPTION_KEY ausente) pausa 10 min em vez de girar
+    em loop. Ctrl+C/sinal NÃO religa — desligamento intencional respeitado.
+  - Eventos do supervisor em logs/supervisor.log e no stdout (o painel
+    da host continua mostrando tudo).
+
+  NOVO: logs persistentes com rotação
+  - Tudo que antes existia só no console agora também vai para
+    logs/bot.log (5 MB × 8 arquivos, UTF-8): crash de madrugada deixa
+    rastro. Exceções fatais fora do asyncio (erro de import/startup)
+    também são gravadas antes do processo morrer.
+
+  NOVO: snapshot diário do banco INTEIRO (03:30 UTC)
+  - database.snapshot_database() usa a API de backup online do SQLite:
+    cópia consistente sob WAL, cobre TODAS as tabelas (o backup JSON
+    semanal cobre só 8 e continua existindo para portabilidade por
+    servidor). Destino: backups/_database/ com retenção das 14 cópias
+    mais recentes; todo snapshot passa por PRAGMA quick_check — arquivo
+    inválido é descartado.
+  - Falha no snapshot → DM ao dono via notify_owner (antes: só uma
+    linha no log que ninguém via).
+
+  NOVO: restore_db.py — recuperação de desastre guiada
+  - python restore_db.py (com o bot desligado): lista os snapshots,
+    valida o escolhido com quick_check, exige confirmação digitada,
+    recusa restaurar com o banco travado (bot ligado), põe o banco
+    atual em quarentena (backups/_quarantine/ — nada é apagado) e
+    valida o resultado final. Erro no meio do caminho → desfaz sozinho.
+
+  CORRIGIDO: backup >8 MB sumia em silêncio
+  - O backup semanal acima do limite do Discord era apenas "pulado com
+    aviso no log" — uma loja grande podia ficar meses sem cópia no
+    Discord sem ninguém saber. Agora o dono recebe DM explicando que o
+    snapshot diário continua cobrindo e como restaurar.
+
+v5.4.2 - Notificação de erros em painéis, backup local e UX (27/09/2026)
+
+  NOVO: erros em botões de compra avisam o dono
+  - Um crash num clique do painel de vendas (antes: interação morta e
+    silêncio) agora gera log com traceback, DM ao dono e resposta
+    amigável ao cliente. Cobre o buraco do handler global que só
+    enxerga comandos de barra.
+
+  NOVO: backup semanal também salva em disco (com retenção)
+  - Cada backup vai para backups/<guild_id>/ além do canal de logs —
+    protege o histórico financeiro se o DB corromper no host. Mantém
+    as 8 cópias mais recentes por servidor (~2 meses).
+  - Nome com timestamp UTC em milissegundos + sufixo anti-colisão.
+
+  MUDOU: DM antes do ban do honeypot
+  - Quem cair na armadilha recebe DM explicando o motivo, a duração
+    e quando o acesso volta. DM fechada não quebra nada.
+
+  MUDOU: modal de entrega expira em 3 min
+  - O formulário de nick/ID segurava o lock anti-duplo-checkout por
+    até 5 min; agora 3 min — mesmo tratamento dos termos de compra.
+
+  NOVO: seção "Solução de Problemas" no README
+  - Comandos que não aparecem, botão sem efeito, PIX quebrado,
+    intents, login — os 5 atendimentos mais comuns com passo a passo.
+
+v5.4.1 - Higiene de runtime + testes sempre disponíveis (27/09/2026)
+
+  CORRIGIDO: lixo de locks em memória
+  - O dicionário anti-duplo-checkout descarta entradas órfãs no
+    startup, evitando acúmulo após restarts forçados.
+
+  CORRIGIDO: lembretes de licença duplicados após restart
+  - A DM "sua licença expira em X dias" não é mais reenviada se o bot
+    reiniciar no mesmo dia — marcador persistido em
+    guild_configs.license_reminder_last_sent_on (migração v32).
+
+  MUDOU: QR Code PIX sem PNG de debug no disco
+  - pixqrcodegen salvava pixqrcodegen.png a cada PIX gerado; agora o
+    QR Code é renderizado a partir do payload (qrcode+PIL, já eram
+    dependências), o arquivo debug vai para o temp e é removido ao
+    final. Menos I/O e zero lixo.
+
+  MUDOU: pytest disponível por padrão
+  - pytest e pytest-asyncio entraram em requirements.txt, então a
+    suíte roda direto numa máquina nova sem instalação manual.
+
+v5.4.0 - Auto-sync de painéis no startup + formatação pt-BR (27/09/2026)
+
+ NOVO: PAINÉIS ATUALIZADOS AUTOMATICAMENTE AO REINICIAR
+  - Quando o bot liga (1º on_ready), TODOS os painéis de loja já postados
+    são re-sincronizados com o banco: lista de produtos, estoque e preço
+    ficam em dia sem você precisar rodar nada.
+  - Se a mensagem do painel sumiu do canal, o bot a re-posta no canal
+    original; se a guild não estiver acessível (bot removido), o painel é
+    pulado com aviso no log.
+  - Resumo no log ao final: "[panels-sync] N sincronizados, X pulados,
+    Y erros."
+
+ MUDOU: quantidades grandes agora com separador de milhar pt-BR
+  - 363000 passa a aparecer como "363.000" (idem 1.000.000) em: sacola,
+    histórico, checkout, tópico do ticket, estoque/qtd. mínima de produtos,
+    cupons (quantidade mínima), saldo de mensagens e relatórios.
+  - Antes era "363000" ou "363,000" (estilo americano).
+
+Manutenção:
+  - Testes: fixture de `test_orphan_sweep`/`test_fk_repair` agora monta o
+    schema na versão atual (v31) e forja `db_version=26` para simular o
+    incidente (o reparo v26 é idempotente em schema novo). Antes pinar
+    versão antiga quebrava a fixture por schema ausente, não por regressão.
+  - `test_contract`: contrato do botão Voltar validado pelo label (v5.3.0
+    removeu o emoji ⬅️). Suíte agora 217/217 passando.
+  - `git init` + `.gitignore` cobrindo *.bak, .tmp-list.json e
+    pixqrcodegen.png — projeto agora versionado localmente.
+
+v5.3.1 - Enter pula linha em todos os campos de texto (26/09/2026)
+
+Fechou o trabalho da quebra de linha: todos os campos de texto
+longo do bot seguem a mesma regra — apertar Enter pula linha de
+verdade, sem precisar digitar \n.
+
+  MUDOU: ENTER EM TODOS OS CAMPOS DE TEXTO
+  - Criar/editar produto, mensalidade, criar/editar painel de
+    venda, aviso global, DM em massa e termos de compra agora
+    orientam na tela "Aperte Enter para pular linha" (saíram os
+    avisos que pediam para digitar \n).
+
+  MANTIDO: \n DIGITADO CONTINUA FUNCIONANDO
+  - Quem já digitou \n (ou tem texto salvo assim) não perde nada:
+    o \n continua sendo convertido em quebra de linha real ao
+    salvar em todos esses campos.
+
 v5.3.0 - Boas-vindas, painéis estáveis e visual limpo (25/09/2026)
 
 Uma rodada de polimento completo: o bot agora recebe quem o convida
