@@ -38,7 +38,7 @@ https://discord.com/oauth2/authorize?client_id=1360681926318624908&permissions=8
 - ✓ Ler Histórico de Mensagens (transcripts)
 - ✓ Gerenciar Mensagens (moderação)
 
-**Mensagem de boas-vindas:** assim que o bot entra num servidor, ele envia por DM um guia "Como usar o bot" para quem fez o convite. O bot descobre quem adicionou pelo **Registro de Auditoria** do Discord — para a detecção funcionar bem, o convite é melhor feito por uma conta com permissão **Ver Registro de Auditoria** (dono e admins normalmente têm). Não identificou quem convidou? O guia vai para o **dono do servidor**. A DM está fechada? O bot posta o guia num **canal do servidor**. O guia mostra o caminho: `/loja vincular` para ativar a loja, a Central `/painel_admin`, `/loja minha_loja`, `/cupom resgatar`, `/sorteio minhasmensagens` e `/ajuda`.
+**Mensagem de boas-vindas:** assim que o bot entra num servidor, ele envia por DM um guia "Como usar o bot" para quem fez o convite. O bot descobre quem adicionou pelo **Registro de Auditoria** do Discord — para a detecção funcionar bem, o convite é melhor feito por uma conta com permissão **Ver Registro de Auditoria** (dono e admins normalmente têm). Não identificou quem convidou? O guia vai para o **dono do servidor**. A DM está fechada? O bot posta o guia num **canal do servidor**. O guia mostra o caminho: `/loja vincular` para ativar a loja, a Central `/painel_admin`, `/minha_loja`, `/cupom resgatar`, `/sorteio minhasmensagens` e `/ajuda`.
 
 ---
 
@@ -49,13 +49,40 @@ https://discord.com/oauth2/authorize?client_id=1360681926318624908&permissions=8
 | Custo | R$ 0 — sem taxa, sem comissão | R$ 0,50/dia |
 | Produtos | criar até **5** | **ilimitado** |
 | Painéis | criar até **2** | **ilimitado** |
+| Criar loja com IA | **3 gerações/dia** | **10 gerações/dia** |
 | Vendas, tickets, cupons, entrega | ✓ ilimitado | ✓ ilimitado |
 
 - **Ativação instantânea**: `/loja vincular` — a loja já nasce no plano Gratuito, sem burocracia
-- **Downgrade gracioso**: sua loja passou do limite quando a licença expirou? **Nada é removido nem bloqueado** — tudo continua vendendo; você só não cria itens novos até renovar ou excluir algo
+- **Downgrade gracioso**: sua loja passou do limite quando a licença expirou? Ficam ativos e vendendo os **primeiros 5 produtos** e **2 painéis** cadastrados; os excedentes são **desativados temporariamente** (saem da loja, sem apagar nada) e **voltam automaticamente** assim que você renovar o Premium
 - Produtos **inativos/desativados não contam** no limite
 - Veja seu uso a qualquer momento: `/loja plano` (ex: "3/5 produtos, 1/2 painéis")
 - Aumente o limite: `/loja mudardeplano`
+
+---
+
+## ✨ Criar Loja com IA
+
+O caminho mais rápido para montar sua loja: você **descreve o que vende** e a IA (NVIDIA NIM) gera um rascunho completo — painel de vendas (título, descrição, cor) + produtos (nome, descrição de venda, preço, estoque e emoji). Você revisa antes de qualquer coisa ser criada.
+
+**Como usar:**
+
+1. Abra a Central (`/painel_admin`) → seção **Produtos** → botão **✨ Criar com IA**
+2. Descreva sua loja no modal — quanto mais detalhe (nicho, itens, preços), melhor o rascunho. Ex.: *"loja de Roblox: 800 Robux por R$ 20, conta premium com 5k de saldo, VIP mensal por R$ 15"*
+3. Aguarde alguns segundos — a IA está montando tudo
+4. Revise o rascunho e escolha:
+   - **✅ Criar tudo** — grava os produtos e o painel (com as opções já vinculadas)
+   - **✏️ Editar painel** — ajusta título, descrição e cor
+   - **🗑 Remover produtos** — tira do rascunho o que não gostou
+   - **🔄 Gerar de novo** — nova tentativa com a mesma descrição (conta outra geração)
+   - **❌ Descartar** — joga fora, nada é criado
+5. O painel nasce **não postado**: publique quando quiser em **Painéis → Postar/Sincronizar**
+
+**Limites diários de geração** (zeram à meia-noite UTC = 21h em Brasília):
+
+- **Gratuito:** 3 gerações/dia
+- **Premium:** 10 gerações/dia
+- Editar, remover itens do rascunho e criar **não consomem** geração — só quando a IA gera. Se o serviço de IA falhar, a geração **não é descontada**.
+- A IA só propõe até os slots do seu plano (ex.: no gratuito, se você já tem 4 produtos ativos, ela sugere no máximo 1) — sem gastar quota à toa.
 
 ---
 
