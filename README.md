@@ -8,6 +8,18 @@ Multi-servidor: cada servidor configura sua própria loja com produtos, preços,
 
 ---
 
+## 🌐 Site oficial
+
+Versão bonita de toda a documentação — como funciona, planos, FAQ e a lista
+completa dos 27 comandos com busca:
+
+**[moshinii.github.io/moshiini-site](https://moshinii.github.io/moshiini-site/)**
+
+O histórico completo de versões continua no changelog deste repositório:
+[`changelogs`](changelogs).
+
+---
+
 ## Comece por aqui — escolha seu caminho
 
 | Você é... | Caminho |
@@ -300,6 +312,8 @@ A gestão da loja é toda pela **Central de Administração** (`/painel_admin`) 
 ---
 
 ## Suporte
+
+- **Site oficial**: https://moshinii.github.io/moshiini-site/ — guias, planos, FAQ e todos os comandos
 
 - **Celular ou PC**: mande uma **DM no bot** para abrir um modmail com a staff (dono de servidor/loja)
 - Abra um **ticket de suporte** pelo painel
