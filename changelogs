@@ -1,5 +1,218 @@
 Changelog - Moshiini_ automações
 
+v5.9.0 - Comprovante de licença validado por IA na DM + Remover Assinatura (20/10/2026)
+
+  NOVO: compra de licença Premium com ativação AUTOMÁTICA por IA
+  - O cliente paga o PIX da licença, clica em "Já Paguei" e envia o
+    comprovante (imagem ou PDF) na DM do bot, como sempre. Agora a IA
+    valida o comprovante contra a fatura: quando TUDO confere — valor,
+    destinatário (PIX do dono do bot), data, tipo e o IDENTIFICADOR/TXID
+    da cobrança citado no comprovante — a licença é ativada na hora,
+    sem esperar o dono aprovar.
+  - Qualquer divergência, falha (IA fora do ar, PDF corrompido, anexo
+    inelegível) ou reenvio cai no fluxo manual de sempre — e a DM de
+    aprovação do dono chega com a ANÁLISE DA IA anexada (✅/⚠ por campo),
+    para aprovar em um clique seguro. Fail-open igual ao leitor das lojas.
+  - v40 (banco): coluna pix_txid em license_invoices — o TXID do PIX
+    gerado fica gravado na fatura e é a âncora anti-fraude da validação
+    (sem ele, comprovante de outro pagamento passaria nas demais
+    checagens). Faturas antigas ficam sem âncora → validação só manual.
+  - CORRIGIDO no caminho (anti-replay): um segundo clique em "Já Paguei"
+    com o MESMO comprovante reabria uma cobrança já COMPLETED para
+    aprovação de novo — dobrando os dias de licença. Agora cobrança
+    processada não reabre; e a IA só roda na primeira submissão.
+  - Auditoria: toda auto-ativação gera DM ao dono do bot com o
+    comprovante, a análise campo a campo e o caminho para desfazer.
+
+  NOVO: "Remover Assinatura" na Central do Dono (/painel_dono → Licenças)
+  - Remoção com confirmação e mesmo efeito da expiração natural: loja
+    volta ao plano Gratuito, funções de IA desligam, excedente desativado
+    (nada é apagado; renovar religa) e painéis re-sincronizados. É o
+    botão de desfazer para o caso de a IA aceitar um comprovante errado.
+  - db.revoke_license centraliza o caminho (update + apply_free_plan_limits).
+
+  TESTES: tests/test_licenca_ia.py (9 casos) — compare_license (âncora
+  TXID, valor, fatura legada), auto-ativação ponta a ponta, anti-replay,
+  divergência → manual com análise anexada, revoke com limites do plano.
+  Nota de infra: os testes novos patcheiam TODOS os objetos BotConfig
+  vivos — o importlib.reload do test_ai_receipts bifurca as referências
+  e fazia o patch valer só para um deles na suíte inteira.
+
+v5.8.0 - IA de menção e leitor de comprovante viram recurso do plano pago (20/10/2026)
+
+  NOVO: funções de IA disponíveis para TODA loja Premium (licença ativa)
+  - Antes restritas às guilds da allowlist do dono (AI_RECEIPT_GUILD_IDS),
+    as duas funções agora fazem parte do plano pago, no mesmo gate:
+    - Editar a loja por texto: o dono menciona o bot e escreve em PT-BR
+      (produto/painel/perguntas) — liberado em lojas Premium;
+    - Leitor de comprovante com IA: imagem (png/jpg/jpeg/webp) ou PDF
+      postado no ticket com compra pendente é analisado e, quando TUDO
+      confere (inclusive o identificador do pedido), confirma sozinho —
+      liberado em lojas Premium.
+  - Gate unificado (utils.bot_utils.guild_autorizada_para_ia): allowlist do
+    dono OU licença Premium ativa OU dono do bot (suporte/demonstração).
+    A allowlist continua valendo (nada muda nas guilds já autorizadas).
+  - Dono de loja no plano GRÁTIS que menciona o bot recebe um embed de
+    upsell explicando que a função é Premium e como ativar (`/loja
+    mudardeplano`); clientes de lojas grátis não veem diferença nenhuma no
+    fluxo do ticket (silêncio, confirmação manual como sempre).
+  - Fail-closed: erro de DB ao consultar o plano nega o acesso à automação
+    de IA sem derrubar nada da loja. Quotas e travas de segurança seguem
+    as mesmas de antes (2 análises/canal + 60s; 4 chamadas de IA/min por
+    autor; só dono do servidor edita por texto).
+  - `/loja plano` agora anuncia os recursos de IA no Premium (na visão do
+    plano ativo e no upsell do gratuito), e o guia (GUIA_DO_BOT.md) passa a
+    listar as duas funções na tabela de planos.
+
+v5.7.0 - Loja inteira por texto: mencione o bot e edite (20/10/2026)
+
+  NOVO: administração por menção cobre produto E painel, não só estoque
+  - O dono menciona o bot e escreve em PT-BR corriqueiro — o que antes
+    só mudava estoque agora aplica na hora: preço ("muda o preço do
+    produto Robux para 25,90", "grátis"), status ("desativa o produto
+    Robux" / "ativa"), renomear ("renomeia o produto Robux para 10.000
+    Robux"), descrição ("descrição do produto Robux para Entrega em
+    5 minutos").
+  - Painéis também: título, descrição, cor (#RRGGBB), banner e
+    miniatura ("muda o título do painel Loja de Robux para Loja Nova";
+    "banner do painel ... para https://..." ou "remover"), adicionar e
+    remover produto do painel ("adiciona o produto Convite VIP no
+    painel Loja") e sincronizar ("sincroniza o painel Loja").
+  - Duas camadas, como o estoque já era: frases no padrão comum são
+    resolvidas SEM IA (sem latência, sem quota); o resto passa pela
+    interpretação da IA (mesma quota de antes: 4/min). Perguntas
+    continuam perguntas: "qual o preço do produto X?" NÃO vira edição.
+  - Mesmas travas de sempre: só nas guilds do checkout por IA e só o
+    dono; toda gravação segue o caminho oficial (whitelists de colunas,
+    pré-checagem de nome duplicado, validações de tamanho da Central,
+    saneamento de emoji) e ressincroniza os painéis afetados. A IA só
+    sugere a intenção — o ID do produto/painel vem sempre do banco.
+  - O embed de resposta mostra o ANTES → DEPOIS de cada campo, e o
+    embed de ajuda ao marcar o bot lista todos os exemplos.
+  - CORRIGIDO no mesmo dia (falso "Pronto!"): quando a interpretação por
+    IA falhava (timeout/resposta cortada), a frase de edição caía na IA
+    de CONVERSA, que respondia "Pronto! O painel foi atualizado…" sem
+    nada ter sido aplicado. Agora: falha da interpretação responde só o
+    aviso de indisponível (a conversa não roda por cima); resposta fora
+    do contrato JSON vira "não entendi, tente de novo"; e o chat de
+    atendimento tem contrato fixo de NÃO executar nada e jamais afirmar
+    que aplicou/editou. A interpretação também ganhou folga de tokens
+    (500 → 1500) — descrições longas vinham cortadas no meio do JSON.
+  - "Painel dos mush" agora acha o painel "Mush": o matchedor ignora
+    decorativos (painel do/da/dos/das/de) dos dois lados. E "para a
+    seguinte descrição…" não grava mais o texto sujo pela camada local —
+    a IA extrai o valor limpo.
+  - CORRIGIDO (log 19:50): navegar pela Central às vezes soltava
+    "Unknown interaction" (404/10062) e o menu não saía da tela — o
+    callback montava a tela da seção antes do primeiro ack; se a
+    montagem passava dos ~3s de vida do token de resposta, o edit
+    morria. Menu e botão Voltar agora fazem ack imediato (defer) e a
+    resposta segue pela mensagem original (desenho m-0069) — a seção
+    abre mesmo com o host lento. Teste: test_dash_nav_defer.py (7).
+  - Testes: test_ai_admin_edicoes.py (55) + test_ai_admin_fluxo.py
+    (12, atualizado ao contrato novo: pergunta livre = NIM devolve
+    {"action":"none"}) — 92 no pytest.
+
+v5.6.6 - Leitor de IA aceita comprovante em PDF (20/10/2026)
+
+  NOVO: comprovante anexado como arquivo PDF também é lido pela IA
+  - Cliente que exporta o comprovante do banco/app em PDF (em vez de
+    foto) tinha que converter em imagem antes: o leitor só olhava
+    png/jpg/jpeg/webp. Agora o PDF anexado no ticket entra na mesma
+    análise automática.
+  - Cada página (até 3) é renderizada em imagem e enviada à IA pelo
+    mesmo caminho de sempre; o texto embutido no PDF — comprovante de
+    banco quase sempre tem valores/chave/TXID como texto real — vai
+    junto como apoio, o que deixa a extração MAIS precisa que a de
+    foto. Se o texto conflitar com o que está visível na imagem, a IA
+    confia na imagem.
+  - Nada muda nas regras de segurança: a confirmação automática
+    continua exigindo TUDO (valor, destinatário, data, tipo e o
+    identificador do pedido citado no comprovante); qualquer item não
+    conferido mantém a decisão com a equipe, pelo botão do ticket.
+  - PDF corrompido/criptografado → veredito "não pôde ser lido" na
+    hora, sem gastar chamada de IA (o cliente reenvia). Limite: PDF
+    até 8 MB; imagem continua até 5 MB.
+  - Nova dependência: pypdfium2 (PDFium, Apache-2.0 — sem binário
+    externo). Testes: test_receipt_files.py (9) — inclui PDF
+    sintético renderizado de verdade e o listener de ponta a ponta
+    (páginas + texto chegando à IA; PDF quebrado sem gastar IA).
+
+v5.6.5 - Expulsão por não verificar configurável (20/10/2026)
+
+  NOVO: cada servidor escolhe o prazo do kick da verificação
+  - O tempo para expulsar quem não se verifica era fixo no código (25 h).
+    Agora cada loja define o próprio prazo na Central de Administração →
+    Verificação de Membros → botão "Tempo de Kick": aumentar (ex.: 7 dias),
+    diminuir (ex.: 1 hora) ou REMOVER o kick de vez (0 = ninguém é
+    expulso; os lembretes de 10 min / 1 h / 24 h continuam).
+  - Valor em minutos com exemplos no próprio campo (1500 = 25 h,
+    60 = 1 h, 10080 = 7 dias, 0 = nunca expulsar); aceito de 10 min a
+    30 dias. Sem configuração, o padrão de 25 h continua valendo — nada
+    muda para quem não tocar em nada.
+  - O prazo vale a partir de quando o membro passou a ser rastreado
+    (mesma regra dos lembretes): restart não expulsa ninguém antes da
+    hora, e mudar o prazo afeta a próxima avaliação do loop (1 min).
+  - O embed da seção mostra o estado atual: "Padrão do bot: 25 horas",
+    o prazo escolhido ("Após 7 dias...") ou "Desativado".
+  - DB v39: coluna verification_kick_minutes em guild_configs (por
+    servidor). Testes: test_verification_kick_timer.py (8) — inclui o
+    loop de ponta a ponta: kick desativado nunca expulsa, padrão de
+    25 h expulsa como antes, prazo maior poupa quem passou de 25 h.
+
+v5.6.4 - Preço e estoque inteiros no painel (18/10/2026)
+
+  CORRIGIDO: preço com centavo quebrado não aparece mais pela metade
+  - Produto por milhar cadastrado a R$ 0,045 era exibido como "R$ 0,04 / 1k"
+    no painel, no select e na sacola: os formatadores usavam :,.2f (2 casas
+    fixas) e o terceiro dígito era arredondado. O cliente lia o valor errado.
+  - A formatação agora preserva até 4 casas decimais sem zeros à direita só
+    quando o preço as tem: 0,045 · 0,0455. Preço normal continua com 2 casas
+    (2,50 · 1.234,56) — nada muda para a loja comum.
+  - Fonte única em _fmt_brl (ui_components); _calc_fmt_brl, cogs/store e
+    cogs/status_cog delegam para ela, então select, painel, sacola,
+    histórico e recibos mostram o mesmo número.
+
+  CORRIGIDO: estoque gigante sem separador de milhar
+  - O embed do painel imprimia "Estoque: 10329222" cru. Agora usa o separador
+    pt-BR: "Estoque: 10.329.222" (também na linha "Restam:" de estoque baixo).
+
+v5.6.3 - Clique no botão Participar sem HTTP 400 (15/10/2026)
+
+  CORREÇÃO: ack do sorteio serializado (fim do "Erro no Bot" a cada clique)
+  - O clique em "Participar" chegava por dois caminhos concorrentes na mesma
+    interação (callback da GiveawayView + fallback do listener on_interaction).
+    Como o defer() do discord.py só marca a resposta DEPOIS do await HTTP, os
+    dois passavam pelo check is_done() e o segundo defer tomava HTTP 400 do
+    Discord — erro que virava DM de "Erro no Bot" para o dono.
+  - Todo o ack dos botões de sorteio (participar e administrativos) agora roda
+    sob um lock do cog: o segundo caminho vê is_done() e sai em silêncio.
+    HTTPException no ack (interação já consumida ou token expirado) também é
+    absorvida com log em vez de estourar no notificador de erros.
+
+v5.6.2 - "Criar loja com IA" fiel aos números do dono (10/10/2026)
+
+  CORREÇÃO: rascunho respeitava o pedido
+  - O prompt limitava o estoque do rascunho a 50 e o parser cortava em 999:
+    quem pedia "20 mil de estoque" recebia produto com estoque 50. Agora o
+    prompt manda reproduzir EXATAMENTE os números e condições citados
+    (preço, estoque, quantidade, "não cubro a taxa"...), o parser aceita
+    estoques de 1 a 999999 e também -1 (infinito) quando o dono pedir.
+  - Condições comerciais deixam de inverter sentido: "não cubro a taxa de
+    30% do Roblox" não vira mais "sem taxa adicional" na descrição.
+
+v5.6.1 - Gerador de loja no Nemotron 3 Ultra (10/10/2026)
+
+  AJUSTE: modelos de IA dedicados por recurso (NVIDIA NIM)
+  - "Criar loja com IA" agora usa por padrão o nvidia/nemotron-3-ultra-550b-a55b
+    (texto+JSON) para gerar painéis/produtos; o leitor de comprovante PIX
+    (imagem) segue no moonshotai/kimi-k3, restrito aos servidores de
+    AI_RECEIPT_GUILD_IDS (vazio = só o TARGET_GUILD_ID).
+  - Novas envs: AI_SHOP_THINKING (off|medium|on — padrão medium, esforço
+    de raciocínio via chat_template_kwargs) e AI_SHOP_MAX_TOKENS
+    (padrão 4096 — o raciocínio consome do mesmo orçamento).
+  - AI_SHOP_MODEL vazio continua caindo no AI_RECEIPTS_MODEL, como antes.
+
 v5.6.0 - Criar loja com IA, downgrade inteligente do Premium e verificação restart-safe (09/10/2026).
 
   NOVO: "Criar loja com IA" (NVIDIA NIM)
