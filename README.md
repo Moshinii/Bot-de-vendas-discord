@@ -8,18 +8,6 @@ Multi-servidor: cada servidor configura sua própria loja com produtos, preços,
 
 ---
 
-## 🌐 Site oficial
-
-Versão bonita de toda a documentação — como funciona, planos, FAQ e a lista
-completa dos 27 comandos com busca:
-
-**[moshinii.github.io/moshiini-site](https://moshinii.github.io/moshiini-site/)**
-
-O histórico completo de versões continua no changelog deste repositório:
-[`changelogs`](changelogs).
-
----
-
 ## Comece por aqui — escolha seu caminho
 
 | Você é... | Caminho |
@@ -62,6 +50,8 @@ https://discord.com/oauth2/authorize?client_id=1360681926318624908&permissions=8
 | Produtos | criar até **5** | **ilimitado** |
 | Painéis | criar até **2** | **ilimitado** |
 | Criar loja com IA | **3 gerações/dia** | **10 gerações/dia** |
+| Editar por texto com IA (@bot) | ✗ | ✓ |
+| Leitor de comprovante com IA (imagem/PDF) | ✗ | ✓ |
 | Vendas, tickets, cupons, entrega | ✓ ilimitado | ✓ ilimitado |
 
 - **Ativação instantânea**: `/loja vincular` — a loja já nasce no plano Gratuito, sem burocracia
@@ -95,6 +85,33 @@ O caminho mais rápido para montar sua loja: você **descreve o que vende** e a 
 - **Premium:** 10 gerações/dia
 - Editar, remover itens do rascunho e criar **não consomem** geração — só quando a IA gera. Se o serviço de IA falhar, a geração **não é descontada**.
 - A IA só propõe até os slots do seu plano (ex.: no gratuito, se você já tem 4 produtos ativos, ela sugere no máximo 1) — sem gastar quota à toa.
+
+---
+
+## ✏️ Editar a Loja por Texto (mencione o bot)
+
+O caminho mais rápido para o dia a dia do dono: **marque o bot (@bot) e escreva o que quer** — em português normal, sem comandos. Ele aplica na hora, mostra o **antes → depois** e atualiza os painéis sozinho. Igual à edição pela Central, só que sem abrir menu nenhum.
+
+**Produtos** (exemplos que funcionam):
+- *@bot estoque do produto 5.000 Robux para 8 milhões e 100* · *estoque infinito para o produto Convite VIP*
+- *@bot muda o preço do produto Robux para 25,90* · *preço da Conta Premium para grátis*
+- *@bot desativa o produto Robux* · *ativa o produto Robux* (pausar sem apagar)
+- *@bot renomeia o produto Robux para 10.000 Robux*
+- *@bot descrição do produto Robux para Entrega em até 5 minutos*
+
+**Painéis:**
+- *@bot muda o título do painel Loja de Robux para Loja Nova*
+- *@bot descrição do painel Loja de Robux para Compre com segurança*
+- *@bot cor do painel Loja de Robux para #ff5e00*
+- *@bot banner do painel Loja de Robux para https://...* · *banner do painel Loja para remover*
+- *@bot adiciona o produto Convite VIP no painel Loja de Robux* · *remove o produto Convite VIP do painel Loja*
+- *@bot sincroniza o painel Loja de Robux* (repõe/atualiza a mensagem no canal)
+
+**Como funciona e o que NÃO é:**
+- Frases no padrão acima são resolvidas na hora, **sem consumir IA**; frases mais soltas passam pela interpretação da IA (limite de 4 por minuto).
+- Perguntas continuam perguntas: *qual o preço do produto X?* não vira edição — o bot responde conversando.
+- Só o **dono do servidor** consegue editar por texto, e o recurso faz parte do **plano Premium** (licença ativa) — o mesmo gate do leitor de comprovante com IA. Toda gravação segue as mesmas validações da Central (nome duplicado, limites de tamanho, formato de cor/URL).
+- Criar/apagar produto ou painel, e configurações avançadas, continuam na Central de Administração (`/painel_admin`).
 
 ---
 
@@ -144,7 +161,7 @@ O caminho mais rápido para montar sua loja: você **descreve o que vende** e a 
 3. Use os botões da tela: **Comprar**, **Calcular R$→Qtd** ou **Calcular Qtd→R$**
 4. No carrinho: ajuste quantidades, remova itens e aplique cupom (menu ou botão **"Aplicar Código"**)
 5. Toque em **Finalizar Compra** → abre um ticket privado com o **QR Code PIX**
-6. Anexe o **comprovante** no ticket → a staff confirma → entrega do produto
+6. Anexe o **comprovante** no ticket → no plano **Premium** a IA confere (imagem ou PDF) e confirma sozinha quando tudo bate; fora dele a staff confirma → entrega do produto
 7. Avalie o atendimento com **estrelas**
 
 ### Sua área pessoal (botões, sem digitar)
@@ -167,7 +184,7 @@ O fluxo de compra é o mesmo nas duas plataformas — tudo por menu e botões:
 4. Confirme a quantidade → o item vai para a **sacola**
 5. Aplique um **cupom** (se tiver) e clique em **Finalizar Compra**
 6. Um **ticket privado** é aberto com o QR Code PIX
-7. Envie o **comprovante** → a staff confirma → **entrega** do produto
+7. Envie o **comprovante** → no **Premium** a IA confere (imagem ou PDF) e confirma sozinha quando tudo bate; fora dele a staff confirma → **entrega** do produto
 8. Avalie com **estrelas** — e consulte tudo depois em `/minha_loja`
 
 ---
@@ -253,7 +270,7 @@ A gestão da loja é toda pela **Central de Administração** (`/painel_admin`) 
 |---|---|---|
 | `/loja vincular` | Ativa a loja grátis (plano Gratuito, sem taxa) | `/loja vincular` — só o dono do servidor consegue |
 | `/loja plano` | Plano atual, uso dos limites e dívidas antigas | `/loja plano` → "3/5 produtos, 1/2 painéis" |
-| `/loja mudardeplano` | Compra/renova a licença Premium (R$ 0,50/dia) | `/loja mudardeplano` → paga o PIX → destrava |
+| `/loja mudardeplano` | Compra/renova a licença Premium (R$ 0,50/dia) | `/loja mudardeplano` → paga o PIX → envia o comprovante na DM → a IA valida e ativa na hora (tudo conferido) ou o dono aprova |
 
 ### Comandos do dono do bot `[DONO DO BOT]`
 
@@ -312,8 +329,6 @@ A gestão da loja é toda pela **Central de Administração** (`/painel_admin`) 
 ---
 
 ## Suporte
-
-- **Site oficial**: https://moshinii.github.io/moshiini-site/ — guias, planos, FAQ e todos os comandos
 
 - **Celular ou PC**: mande uma **DM no bot** para abrir um modmail com a staff (dono de servidor/loja)
 - Abra um **ticket de suporte** pelo painel
