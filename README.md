@@ -1,5 +1,18 @@
 # Moshiini_ Automações
 
+## 🌐 Site oficial
+
+Versão bonita de toda a documentação — como funciona, planos, FAQ e a lista
+completa dos 27 comandos com busca:
+
+**[moshinii.github.io/moshiini-site](https://moshinii.github.io/moshiini-site/)**
+
+O histórico completo de versões continua no changelog deste repositório:
+[`changelogs`](changelogs).
+
+---
+
+
 Bot Discord completo para lojas virtuais com sistema de pagamentos via PIX, tickets, painéis de produtos, cupons de desconto, sistema de convites com recompensa, moderação anti-hack e muito mais.
 
 Multi-servidor: cada servidor configura sua própria loja com produtos, preços, chave PIX, painéis e regras — de forma 100% independente.
