@@ -15,3 +15,5 @@ com busca.
 As novidades do bot são anunciadas **somente no chat oficial** do Discord:
 
 **[discord.gg/C5aP3HEujN](https://discord.gg/C5aP3HEujN)**
+
+.
