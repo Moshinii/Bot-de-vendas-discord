@@ -1,7 +1,7 @@
 # Moshiini_ Automações 🍄
 
 Bot de vendas para Discord: loja completa com PIX, carrinho, tickets de
-entrega, cupons e sorteios — tudo por painéis e botões.
+entrega, cupons, parcerias e sorteios — tudo por painéis e botões.
 
 ## 🌐 Site oficial
 
