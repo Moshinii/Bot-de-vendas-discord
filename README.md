@@ -3,7 +3,7 @@
 Bot de vendas para Discord: loja completa com PIX, carrinho, tickets de
 entrega, cupons, parcerias e sorteios — tudo por painéis e botões.
 
-## 🌐 Site oficial
+## 🌐 Site oficial.
 
 **[moshinii.github.io/moshiini-site](https://moshinii.github.io/moshiini-site/)**
 
